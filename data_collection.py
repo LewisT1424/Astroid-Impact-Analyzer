@@ -7,6 +7,7 @@ import random
 from dotenv import load_dotenv#
 import json
 from utils import create_date_range
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -52,7 +53,7 @@ class AstroidAPI:
         try:
             data, url, status = await self.make_request(url=self.base_url, params=params)
             logger.info("Data successfully requested")
-            path = f"data/raw/astroid_{params['start_date']}_{params['end_date']}.json"
+            path = f"data/test/astroid_{params['start_date']}_{params['end_date']}.json"
             with open(path, 'w') as f:
                 json.dump(data, f)
                 logger.info(f"Data saved to {idx+1}/{total}: {path}")
@@ -61,39 +62,53 @@ class AstroidAPI:
             logger.error(f"Error processing request: {idx + 1}: {e}")
             
 
-    async def make_batch_request(self, start_date: str, end_date: str, batch_size: int=5):
+    async def make_batch_request(self, start_date: str, end_date: str, batch_size: int = 5):
         dates = create_date_range(start_date=start_date, end_date=end_date)
+        print(f"Processing {len(dates)-1} date ranges")
         
-        for i in range(0, len(dates) - 1, batch_size):
-            batch = dates[i:i+batch_size]
+        # Process in batches to avoid overwhelming the API
+        for i in range(0, len(dates)-1, batch_size):
+            batch_end = min(i + batch_size, len(dates)-1)
             tasks = []
-
-            for idx, date in enumerate(batch[:-1]):
+            
+            # Create tasks for this batch
+            for idx in range(i, batch_end):
                 params = {
-                    'start_date': date,
-                    'end_date': batch[idx+1],
-                    'api_key': os.getenv('API_KEY') if os.getenv('API_KEY') else 'DEMO_KEY'
+                    'start_date': dates[idx],
+                    'end_date': dates[idx+1],
+                    'api_key': os.getenv('API_KEY', 'DEMO_KEY')
                 }
-                tasks.append(self.make_single_request(params=params, idx=idx+i, total=len(dates)))
+                # Create task but don't await yet
+                task = self.process_single_request(params, idx, len(dates)-1)
+                tasks.append(task)
+            
+            # Run all tasks in this batch concurrently
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Log results
+            for idx, result in enumerate(results):
+                if isinstance(result, Exception):
+                    logger.error(f"Request {i+idx+1} failed: {result}")
+                else:
+                    logger.info(f"Batch {i//batch_size + 1} request {idx+1} completed")
+            
+            # Small delay between batches to be nice to the API
+            if batch_end < len(dates)-1:
+                await asyncio.sleep(0.5)
 
-            # Process this batch
-            await asyncio.gather(*tasks, return_exceptions=True)
-            # Add small delay between batches
-            await asyncio.sleep(0.1)
-
-
-
-
-async def main():
-    api = AstroidAPI()
-    start_date = '2010-01-01'
-    end_date = '2011-01-01'
-
-    await api.make_batch_request(start_date=start_date, end_date=end_date)
-    logger.info(f"All data stored in data/raw")
-
-
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
+    async def process_single_request(self, params, idx, total):
+        """Process a single request"""
+        try:
+            data, url, status = await self.make_request(url=self.base_url, params=params)
+            
+            # Save the data
+            path = f"data/raw/astroid_{params['start_date']}_{params['end_date']}.json"
+            with open(path, 'w') as f:
+                json.dump(data, f)
+            
+            logger.info(f"Data saved {idx+1}/{total}: {path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error processing request {idx+1}: {e}")
+            raise

@@ -209,14 +209,3 @@ class Preprocessor:
             logger.info(f"Added formatted data to list: {idx+1}/{len(raw_data)}")
         final_df = pl.concat(final_data_list)
         return final_df
-
-
-def main():
-    preproc = Preprocessor()
-    final_data = preproc.pipeline()
-    save_df_to_pqt(final_data)
-
-
-
-if __name__ == '__main__':
-    main()
