@@ -1,6 +1,6 @@
-from data_collection import AstroidAPI
-from preprocessing import Preprocessor
-from utils import logger, save_df_to_pqt
+from src.data_processing.data_collection import AstroidAPI
+from src.data_processing.feature_engineering import Preprocessor
+from src.utils.utils import logger, save_df_to_pqt
 import time
 import asyncio
 

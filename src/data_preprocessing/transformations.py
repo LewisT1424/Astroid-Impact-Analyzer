@@ -1,7 +1,7 @@
 import polars as pl
 import numpy as np
 from sklearn.preprocessing import RobustScaler
-from utils import logger
+from src.utils.utils import logger
 
 class Preprocessor:
     def __init__(self):
@@ -74,8 +74,8 @@ class Preprocessor:
 
         return df
     
-    def final_data_transformation(self):
-        df = self.data.to_pandas().copy()
+    def final_data_transformation(self, new_data):
+        df = new_data.to_pandas().copy()
         # Zero-heavy features (apply log1p)
         zero_heavy_features = [
             'momentum', 'size_squared_velocity', 'velocity_distance_ratio',
@@ -266,20 +266,16 @@ class Preprocessor:
         # Show sample statistics
         logger.info(f"\n📈 Sample feature statistics:")
         logger.info(df.describe().iloc[:, :5])  # Show first 5 columns
+
+        df['is_potentially_hazardous'] = y
+
         
-        return df, y, feature_names, scaler
+        return pl.DataFrame(df), feature_names, scaler
 
 
     def run_pipeline(self):
-        string_transformed_data = self.format_string_cols(self.data)
-        data, target, feature_names, scaler = self.final_data_transformation(string_transformed_data)
+        string_transformed_data = self.format_string_cols()
+        data, feature_names, scaler = self.final_data_transformation(string_transformed_data)
 
-        return data, target, feature_names, scaler
+        return data, feature_names, scaler
     
-def main():
-    preprocessor = Preprocessor()
-
-    return preprocessor.run_pipeline()
-
-if __name__ == '__main__':
-    main()

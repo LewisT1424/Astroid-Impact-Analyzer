@@ -2,7 +2,7 @@ import polars as pl
 import json
 import numpy as np
 import os
-from utils import logger, save_df_to_pqt
+from src.utils.utils import logger, save_df_to_pqt
 from typing import List
 
 class Preprocessor:

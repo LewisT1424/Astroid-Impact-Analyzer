@@ -6,7 +6,7 @@ import logging
 import random
 from dotenv import load_dotenv#
 import json
-from utils import create_date_range
+from src.utils.utils import create_date_range
 from datetime import datetime, timedelta
 
 load_dotenv()
