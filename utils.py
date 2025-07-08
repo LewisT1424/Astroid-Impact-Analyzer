@@ -1,6 +1,9 @@
 import logging
 from datetime import datetime, timedelta
 import polars as pl
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,3 +26,35 @@ def save_df_to_pqt(data: pl.DataFrame):
     path = f"data/cleaned/data_{str(datetime.now())[:10]}.parquet"
     data.write_parquet(path)
     logger.info(f"Data wrote to: {path}")
+
+def dist_view(data):
+    for col in data.columns:
+        try: 
+            plt.figure(figsize=(10,14))
+            sns.kdeplot(data=data, x=col, hue='is_potentially_hazardous')
+            plt.show()
+        
+        except Exception as e:
+            raise e
+        
+def get_data_summary(data):
+    # Generate data summary for me to review
+    logger.info("=== DATA SUMMARY ===")
+    logger.info(f"Shape: {data.shape}")
+    logger.info(f"\nColumn types:")
+    logger.info(data.dtypes)
+
+    logger.info(f"\nFirst 5 rows:")
+    logger.info(data.head())
+
+    logger.info(f"\nBasic statistics:")
+    logger.info(data.describe())
+
+    logger.info(f"\nClass distribution:")
+    logger.info(y.value_counts())
+
+    # Check for any obvious scaling issues
+    numeric_cols = data.select_dtypes(include=[np.number]).columns
+    logger.info(f"\nNumeric columns ranges:")
+    for col in numeric_cols[:10]:  # First 10 numeric columns
+        logger.info(f"{col}: {data[col].min():.3f} to {data[col].max():.3f}")
