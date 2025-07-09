@@ -5,9 +5,8 @@ from sklearn.model_selection import train_test_split
 
 
 class Model:
-    def __init__(self, data: pl.DataFrame, loading=False):
+    def __init__(self, data: pl.DataFrame):
         self.data = data
-        self.loading = loading
         self.best_params = {'objective': 'binary:logistic',
                             'base_score': None,
                             'booster': None,
@@ -155,8 +154,5 @@ class Model:
         # Display performance to user
         for key, item in model_metrics
             logger.info(f"{key.capitalize()}: {item}")
-        
-        # Save model
-        save_model(model)
         # Return model to user
         return model

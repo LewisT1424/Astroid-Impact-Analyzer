@@ -8,7 +8,6 @@ def main():
     data, feature_names, scaler = preprocessor.run_pipeline()
 
     save_df_to_pqt(data, train=True)
-    logger.info(f"Data saved")
 
 if __name__ == '__main__':
     main()
