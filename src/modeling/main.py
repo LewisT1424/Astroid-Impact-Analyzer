@@ -9,4 +9,5 @@ def main():
     save_model(model)
     return model
 
-if __name__ == '__main__'
+if __name__ == '__main__':
+    main()
