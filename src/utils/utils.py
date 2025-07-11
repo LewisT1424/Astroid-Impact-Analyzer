@@ -71,7 +71,7 @@ def get_data_summary(data):
 
 def save_model(model):
     try:
-        path = 'models/astroid_xgboost_model.pkl'
+        path = f'models/astroid_xgboost_model_{datetime.utcnow()}.pkl'
         with open(path, 'wb') as file:
             pickle.dump(model, file)
             logger.info(f"Model saved to {path}")

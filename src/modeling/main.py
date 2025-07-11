@@ -1,4 +1,4 @@
-from model_creation import Model
+from src.modeling.model_creation import Model
 import polars as pl
 from src.utils.utils import save_model
 

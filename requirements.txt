@@ -6,3 +6,8 @@ polars
 asyncio
 aiohttp
 json
+xgboost
+sklearn
+logging
+dotenv
+random

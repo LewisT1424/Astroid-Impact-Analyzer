@@ -4,10 +4,9 @@ import aiohttp
 from typing import Dict, List
 import logging
 import random
-from dotenv import load_dotenv#
+from dotenv import load_dotenv
 import json
 from src.utils.utils import create_date_range
-from datetime import datetime, timedelta
 
 load_dotenv()
 
